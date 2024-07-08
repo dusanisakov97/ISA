@@ -13,6 +13,17 @@ const getCompanies = async () => {
     }
 };
 
+const getProductsByCompany = async (companyId) => {
+    try {
+        const response = await axios.get(backendUrl + `products/company/` + companyId); 
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return null;             
+    }
+};
+
 export {
-    getCompanies
+    getCompanies, getProductsByCompany
 };

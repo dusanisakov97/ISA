@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
-import { getCompanies } from "../backend-api/CompanyController";
-import { Link } from "react-router-dom";
+import { getProductsByCompany } from "../backend-api/CompanyController";
+import { useParams } from "react-router-dom";
 
 
-const URCompaniesPage = () => {
-    const [stateCompanies, setStateCompanies] = useState([]);
+const URProductsPage = () => {
+    const {companyId} = useParams();
+
+    const [stateProducts, setStateProducts] = useState([]);
 
     useEffect(() => {
-        populateCompanies();
+        populateProducts();
     }, []);
 
-    const populateCompanies = async () => {
-        const companies = await getCompanies();
-        setStateCompanies(companies);
+    const populateProducts = async () => {
+        const companies = await getProductsByCompany(companyId);
+        setStateProducts(companies);
     };
 
     return(
         <>
         <div className="container p-2">
             <div className="row">
-                {stateCompanies && stateCompanies.map(iterable => (
+                {stateProducts && stateProducts.map(iterable => (
                 <div className="col col-md-4">
                     <div class="card" >
                         <div class="card-body">
                             <h5 class="card-title">{iterable.name}</h5>
                             <p class="card-text">{iterable.description}</p>
-                            <Link to={"/unregistered/products/company/" + iterable.id} class="btn btn-primary">See products</Link>
                         </div>
                     </div>
                 </div>
@@ -36,4 +37,4 @@ const URCompaniesPage = () => {
     );
 };
 
-export default URCompaniesPage;
+export default URProductsPage;

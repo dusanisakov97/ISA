@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import UrlNotFoundPage from './components/UrlNotFound';
 import LandingPage from './components/unregistered/LandingPage';
 import URCompaniesPage from './components/unregistered/URCompaniesPage';
+import URProductsPage from './components/unregistered/URProductsPage';
 
 function App() {
   const unregisteredUserUrlPrefix = '/unregistered'
@@ -35,6 +36,7 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path={unregisteredUserUrlPrefix + '/companies'} element={<URCompaniesPage />} />
+      <Route path={unregisteredUserUrlPrefix + '/products/company/:companyId'} element={<URProductsPage />} />
       <Route path="*" element={<UrlNotFoundPage />} />
     </Routes>
     </>  
