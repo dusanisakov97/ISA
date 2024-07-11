@@ -4,9 +4,11 @@ import com.ftn.isa.data.ProductModel;
 
 public record ProductListItemDto (
     int id,
-    String name){
+    String name,
+    int lager,
+    int price){
 
     public static ProductListItemDto convert(ProductModel model) {
-        return new ProductListItemDto(model.getId(), model.getName());
+        return new ProductListItemDto(model.getId(), model.getName(), model.getLager(), model.getPrice());
     }
 }
