@@ -4,7 +4,8 @@ import UrlNotFoundPage from './components/UrlNotFound';
 import LandingPage from './components/unregistered/LandingPage';
 import URCompaniesPage from './components/unregistered/URCompaniesPage';
 import URProductsPage from './components/unregistered/URProductsPage';
-import SignInPage from './components/unregistered/SignInPage';
+import URSignInPage from './components/unregistered/URSignInPage';
+import URRegisterPage from './components/unregistered/URSRegisterPage';
 
 function App() {
   const unregisteredUserUrlPrefix = '/unregistered'
@@ -24,10 +25,10 @@ function App() {
               <Link className="nav-link" to={"/unregistered/companies"}>Company</Link>
             </li>
             <li className="nav-item">
-            <Link className="nav-link" to={"/unregistered/sign-in"}>Sign in</Link>
+              <Link className="nav-link" to={"/unregistered/sign-in"}>Sign in</Link>
             </li>
             <li className="nav-item">
-              <a className="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+              <Link className="nav-link" to={"/unregistered/register"}>Register</Link>
             </li>
           </ul>
         </div>
@@ -36,7 +37,8 @@ function App() {
     <Routes>
       <Route path="/" element={<LandingPage />} />
       <Route path={unregisteredUserUrlPrefix + '/companies'} element={<URCompaniesPage />} />
-      <Route path={unregisteredUserUrlPrefix + '/sign-in'} element={<SignInPage />} />
+      <Route path={unregisteredUserUrlPrefix + '/sign-in'} element={<URSignInPage />} />
+      <Route path={unregisteredUserUrlPrefix + '/register'} element={<URRegisterPage />} />
       <Route path={unregisteredUserUrlPrefix + '/products/company/:companyId'} element={<URProductsPage />} />
       <Route path="*" element={<UrlNotFoundPage />} />
     </Routes>

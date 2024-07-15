@@ -1,6 +1,6 @@
 import React from "react";
 
-const SignInPage = () => {
+const URSignInPage = () => {
     return (
         <div className="container">
             <div className="row">
@@ -25,7 +25,7 @@ const SignInPage = () => {
     )
 }
 
-export default SignInPage;
+export default URSignInPage;
 
 
 
