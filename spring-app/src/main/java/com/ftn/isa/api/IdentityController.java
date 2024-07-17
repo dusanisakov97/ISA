@@ -7,6 +7,7 @@ import com.ftn.isa.payload.response.identity.RegisteredDto;
 import com.ftn.isa.repository.AppUserRepository;
 import com.ftn.isa.tools.Const;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,10 +16,12 @@ import org.springframework.web.bind.annotation.*;
 public class IdentityController {
 
     private final AppUserRepository appUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public IdentityController(AppUserRepository appUserRepository) {
+    public IdentityController(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder) {
 
         this.appUserRepository = appUserRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("register")
@@ -32,13 +35,16 @@ public class IdentityController {
         AppUser user = new AppUser();
         user.setEmail(requestBody.email());
         user.setName(requestBody.name());
-        user.setPassword(requestBody.password());
+
         user.setCountry(requestBody.country());
         user.setPhone(requestBody.phone());
         user.setWork(requestBody.work());
         user.setTown(requestBody.town());
         user.setSurname(requestBody.surname());
         user.setRole(Const.USER_ROLE);
+
+        var securePass = passwordEncoder.encode(requestBody.password());
+        user.setPassword(securePass);
 
         appUserRepository.save(user);
 
@@ -49,7 +55,12 @@ public class IdentityController {
 
     @PostMapping("sign-in")
     public ResponseEntity<?> login(@RequestBody SignInDto requestBody) {
-        return ResponseEntity.ok().build();
+        var userOpt = appUserRepository.findByEmail(requestBody.username());
+        if (userOpt.isEmpty())  return ResponseEntity.badRequest().body("Email or password is wrong");
+
+        if (!passwordEncoder.matches(requestBody.password(), userOpt.get().getPassword())) return ResponseEntity.badRequest().body("Email or password is wrong");
+
+        return ResponseEntity.ok().body("Success");
     }
 
     private String validate(RegisterDto model) {

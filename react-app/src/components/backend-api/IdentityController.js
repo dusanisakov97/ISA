@@ -9,10 +9,23 @@ const registerAPI = async (requestBody) => {
         }}); 
         return [response.data, null];
     } catch (error) {
+        console.log(error)
+        return [null, error.response.data];             
+    }
+};
+
+const signInAPI = async (requestBody) => {
+    try {
+        const response = await axios.post(backendUrl + `identity/sign-in`, requestBody, {headers: {
+            'Content-Type': 'application/json'
+        }}); 
+        return [response.data, null];
+    } catch (error) {
+        console.log(error)
         return [null, error.response.data];             
     }
 };
 
 export {
-    registerAPI
+    registerAPI, signInAPI
 };

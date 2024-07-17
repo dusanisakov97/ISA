@@ -6,9 +6,17 @@ import URCompaniesPage from './components/unregistered/URCompaniesPage';
 import URProductsPage from './components/unregistered/URProductsPage';
 import URSignInPage from './components/unregistered/URSignInPage';
 import URRegisterPage from './components/unregistered/URSRegisterPage';
+import { useEffect, useState } from 'react';
 
 function App() {
   const unregisteredUserUrlPrefix = '/unregistered'
+
+  const [email, setEmail] = useState('')
+
+  useEffect(() => {
+    setEmail(localStorage.getItem('EMAIL'));
+  }, []);
+
   return (
     <>
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -17,20 +25,36 @@ function App() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav">
-            <li className="nav-item">
-              <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to={"/unregistered/companies"}>Company</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to={"/unregistered/sign-in"}>Sign in</Link>
-            </li>
-            <li className="nav-item">
-              <Link className="nav-link" to={"/unregistered/register"}>Register</Link>
-            </li>
-          </ul>
+            {email && 
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to={"/unregistered/companies"}>Company</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to={"/unregistered/sign-in"}>Sign in</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to={"/unregistered/register"}>Register</Link>
+              </li>
+            </ul>
+            }
+
+            {!email && 
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to={"/registered/companies"}>Company</Link>
+              </li>
+              <li className="nav-item">
+                <button className="nav-link">Loogut</button>
+              </li>
+            </ul>
+            }
         </div>
       </div>
     </nav>
