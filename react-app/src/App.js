@@ -7,15 +7,23 @@ import URProductsPage from './components/unregistered/URProductsPage';
 import URSignInPage from './components/unregistered/URSignInPage';
 import URRegisterPage from './components/unregistered/URSRegisterPage';
 import { useEffect, useState } from 'react';
+import REGCompaniesPage from './components/registered/REGCompaniesPage';
+import REGProductsPage from './components/registered/REGProductsPage';
 
 function App() {
   const unregisteredUserUrlPrefix = '/unregistered'
+  const registeredUserUrlPrefix = '/registered'
 
   const [email, setEmail] = useState('')
 
   useEffect(() => {
     setEmail(localStorage.getItem('EMAIL'));
   }, []);
+
+  const logout = () => {
+    localStorage.clear();
+    window.location.href = '/';
+  }
 
   return (
     <>
@@ -25,7 +33,7 @@ function App() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-            {email && 
+            {!email && 
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
@@ -42,7 +50,7 @@ function App() {
             </ul>
             }
 
-            {!email && 
+            {email && 
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
@@ -51,7 +59,7 @@ function App() {
                 <Link className="nav-link" to={"/registered/companies"}>Company</Link>
               </li>
               <li className="nav-item">
-                <button className="nav-link">Loogut</button>
+                <button className="nav-link" onClick={() => logout()}>Logout</button>
               </li>
             </ul>
             }
@@ -60,11 +68,23 @@ function App() {
     </nav>
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      <Route path={unregisteredUserUrlPrefix + '/companies'} element={<URCompaniesPage />} />
-      <Route path={unregisteredUserUrlPrefix + '/sign-in'} element={<URSignInPage />} />
-      <Route path={unregisteredUserUrlPrefix + '/register'} element={<URRegisterPage />} />
-      <Route path={unregisteredUserUrlPrefix + '/products/company/:companyId'} element={<URProductsPage />} />
-      <Route path="*" element={<UrlNotFoundPage />} />
+      {!email &&
+      <>
+        <Route path={unregisteredUserUrlPrefix + '/companies'} element={<URCompaniesPage />} />
+        <Route path={unregisteredUserUrlPrefix + '/sign-in'} element={<URSignInPage />} />
+        <Route path={unregisteredUserUrlPrefix + '/register'} element={<URRegisterPage />} />
+        <Route path={unregisteredUserUrlPrefix + '/products/company/:companyId'} element={<URProductsPage />} />
+        <Route path="*" element={<UrlNotFoundPage />} />
+      </>
+      }
+
+      {email &&
+      <>
+        <Route path={registeredUserUrlPrefix + '/companies'} element={<REGCompaniesPage />} />
+        <Route path={registeredUserUrlPrefix + '/products/company/:companyId'} element={<REGProductsPage />} />
+        <Route path="*" element={<UrlNotFoundPage />} />
+      </>
+      }
     </Routes>
     </>  
 );
