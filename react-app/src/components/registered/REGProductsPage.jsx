@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getProductsByCompany } from "../backend-api/CompanyController";
 import { useParams } from "react-router-dom";
 import { getTimeSlotsByCompany } from "../backend-api/TimeSlotController";
+import { makeOrderAPI } from "../backend-api/ReservationController";
 
 
 const REGProductsPage = () => {
@@ -57,6 +58,26 @@ const REGProductsPage = () => {
         setSelectedSlot(null);
     }
 
+    const makeReservation = async () => {
+        const requestBody = {items: [], timeSlot: stateSelectedSlot};
+        for (let i = 0; i < stateProducts.length; i++) {
+            if (stateProducts[i].selected && stateProducts[i].selected > 0) {
+                requestBody.items.push({
+                    productId: stateProducts[i].id,
+                    selected: stateProducts[i].selected
+                })
+            }
+        }
+
+        const response = await makeOrderAPI(requestBody);
+        if (response === null) {
+            alert('Making reservation failed')
+        } else {
+            alert('Reservation saved')
+            window.location.href = "/";
+        }
+    }
+
     return(
         <>
         <div className="container p-2">
@@ -88,8 +109,10 @@ const REGProductsPage = () => {
 
 
 
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        Launch demo modal
+        <button type="button" class="floating-button" data-bs-toggle="modal" data-bs-target="#exampleModal"
+            hidden={!stateProducts.find(x => x.selected && x.selected > 0)}
+        >
+            Proceed to reservation
         </button>
 
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -139,7 +162,8 @@ const REGProductsPage = () => {
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary"
-                    disabled={!stateSelectedSlot || !stateProducts.find(x => x.selected && x.selected > 0)}>
+                    disabled={!stateSelectedSlot || !stateProducts.find(x => x.selected && x.selected > 0)}
+                    onClick={() => makeReservation()}>
                     Make reservation</button>
             </div>
             </div>

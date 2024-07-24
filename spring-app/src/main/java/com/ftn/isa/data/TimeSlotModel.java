@@ -22,4 +22,7 @@ public class TimeSlotModel {
             nullable = false
     )
     CompanyModel company;
+
+    @OneToOne(mappedBy = "timeSlot", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private ReservationModel reservation;
 }
