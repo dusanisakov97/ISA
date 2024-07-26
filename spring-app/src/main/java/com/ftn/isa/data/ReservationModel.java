@@ -20,7 +20,7 @@ public class ReservationModel {
     @JoinColumn(referencedColumnName = "id")
     private AppUser user;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn
     TimeSlotModel timeSlot;
 }

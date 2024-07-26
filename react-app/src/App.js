@@ -9,6 +9,7 @@ import URRegisterPage from './components/unregistered/URSRegisterPage';
 import { useEffect, useState } from 'react';
 import REGCompaniesPage from './components/registered/REGCompaniesPage';
 import REGProductsPage from './components/registered/REGProductsPage';
+import REGActiveReservations from './components/registered/REGActiveReservations';
 
 function App() {
   const unregisteredUserUrlPrefix = '/unregistered'
@@ -59,6 +60,9 @@ function App() {
                 <Link className="nav-link" to={"/registered/companies"}>Company</Link>
               </li>
               <li className="nav-item">
+                <Link className="nav-link" to={"/registered/active-reservations"}>Reservations</Link>
+              </li>
+              <li className="nav-item">
                 <button className="nav-link" onClick={() => logout()}>Logout</button>
               </li>
             </ul>
@@ -81,6 +85,7 @@ function App() {
       {email &&
       <>
         <Route path={registeredUserUrlPrefix + '/companies'} element={<REGCompaniesPage />} />
+        <Route path={registeredUserUrlPrefix + '/active-reservations'} element={<REGActiveReservations />} />
         <Route path={registeredUserUrlPrefix + '/products/company/:companyId'} element={<REGProductsPage />} />
         <Route path="*" element={<UrlNotFoundPage />} />
       </>
