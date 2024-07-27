@@ -69,9 +69,9 @@ const REGProductsPage = () => {
             }
         }
 
-        const response = await makeOrderAPI(requestBody);
-        if (response === null) {
-            alert('Making reservation failed')
+        const error = await makeOrderAPI(requestBody);
+        if (error !== null) {
+            alert(error)
         } else {
             alert('Reservation saved')
             window.location.href = "/";

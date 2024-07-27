@@ -1,14 +1,13 @@
 package com.ftn.isa.api;
 
-import com.ftn.isa.data.ProductModel;
-import com.ftn.isa.data.ReservationModel;
-import com.ftn.isa.data.ReservationProductModel;
-import com.ftn.isa.data.TimeSlotTrackerModel;
+import com.ftn.isa.data.*;
 import com.ftn.isa.payload.request.reservation.ActiveReservationDto;
 import com.ftn.isa.payload.request.reservation.ReservationDto;
 import com.ftn.isa.payload.response.reservation.CreatedReservationDto;
 import com.ftn.isa.repository.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,13 +23,15 @@ public class ReservationsController {
     private final ProductRepository productRepository;
     private final ReservationProductRepository reservationProductRepository;
     private final TimeSlotTrackerRepository timeSlotTrackerRepository;
+    private final AppUserRepository appUserRepository;
 
-    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository) {
+    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository) {
         this.reservationRepository = reservationRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.productRepository = productRepository;
         this.reservationProductRepository = reservationProductRepository;
         this.timeSlotTrackerRepository = timeSlotTrackerRepository;
+        this.appUserRepository = appUserRepository;
     }
 
     @PostMapping("")
@@ -38,6 +39,14 @@ public class ReservationsController {
         var timeslotOpt=  timeSlotRepository.findById(model.timeSlot().id());
         if (timeslotOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Timeslot not found");
+        }
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        if (timeSlotTrackerRepository.existsByAppUserAndTimeSlot(user, timeslotOpt.get())){
+            return ResponseEntity.badRequest().body("You already reserved this term and you are not allowed to do it anymore");
         }
 
         List<ProductModel> products = new ArrayList<>();
@@ -49,7 +58,7 @@ public class ReservationsController {
         ReservationModel reservationModel = new ReservationModel();
         reservationModel.setReservationDateTime(LocalDateTime.now());
         reservationModel.setTimeSlot(timeslotOpt.get());
-        // set user
+        reservationModel.setUser(user);
 
         reservationRepository.save(reservationModel);
 
@@ -65,7 +74,7 @@ public class ReservationsController {
         TimeSlotTrackerModel timeSlotTrackerModel = new TimeSlotTrackerModel();
         timeSlotTrackerModel.setTimeSlot(timeslotOpt.get());
         timeSlotTrackerModel.setDateTime(LocalDateTime.now());
-        // add users
+        timeSlotTrackerModel.setAppUser(user);
         timeSlotTrackerRepository.save(timeSlotTrackerModel);
 
         CreatedReservationDto dto = new CreatedReservationDto(reservationModel.getId(), reservationModel.getReservationDateTime());

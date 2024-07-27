@@ -16,9 +16,9 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-        private final UserDetailsService userDetailsService;
+        private final CustomUserDetailsService userDetailsService;
 
-        public SecurityConfiguration(UserDetailsService userDetailsService) {
+        public SecurityConfiguration(CustomUserDetailsService userDetailsService) {
             this.userDetailsService = userDetailsService;
         }
 
@@ -29,6 +29,7 @@ public class SecurityConfiguration {
                     .authorizeHttpRequests()
                     .requestMatchers("/admin/**").hasRole("USER")
                     .requestMatchers("/identity/**").permitAll()
+                    .requestMatchers("/reservation/**").hasRole("USER")
                     .anyRequest().permitAll()
                     .and().formLogin()
                     .and().httpBasic();

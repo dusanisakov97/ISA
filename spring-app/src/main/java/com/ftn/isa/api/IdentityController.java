@@ -7,6 +7,9 @@ import com.ftn.isa.payload.response.identity.RegisteredDto;
 import com.ftn.isa.repository.AppUserRepository;
 import com.ftn.isa.tools.Const;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +20,13 @@ public class IdentityController {
 
     private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
 
-    public IdentityController(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder) {
+    public IdentityController(AppUserRepository appUserRepository, PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager) {
 
         this.appUserRepository = appUserRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
     }
 
     @PostMapping("register")
@@ -59,6 +64,11 @@ public class IdentityController {
         if (userOpt.isEmpty())  return ResponseEntity.badRequest().body("Email or password is wrong");
 
         if (!passwordEncoder.matches(requestBody.password(), userOpt.get().getPassword())) return ResponseEntity.badRequest().body("Email or password is wrong");
+
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(requestBody.username(),
+                        requestBody.password()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return ResponseEntity.ok().body("Success");
     }

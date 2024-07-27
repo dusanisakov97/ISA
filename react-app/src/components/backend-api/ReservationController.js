@@ -7,14 +7,14 @@ const makeOrderAPI = async (requestBody) => {
         const credentials = btoa(`${localStorage.getItem('EMAIL')}:${localStorage.getItem('PASSWORD')}`);
         const response = await axios.post(backendUrl, requestBody, {
             headers: {
-                Authorization: credentials
+                Authorization: 'Basic ' + credentials
             }
         }); 
         console.log(response.data)
-        return response.data;
+        return null;
     } catch (error) {
         console.log(error);
-        return null;             
+        return error.response.data;             
     }
 };
 
@@ -39,7 +39,7 @@ const deleteReservationAPI = async (id) => {
         const credentials = btoa(`${localStorage.getItem('EMAIL')}:${localStorage.getItem('PASSWORD')}`);
         const response = await axios.delete(backendUrl + "/" + id, {
             headers: {
-                Authorization: credentials
+                Authorization: 'Basic ' + credentials
             }
         }); 
         console.log(response.data)
