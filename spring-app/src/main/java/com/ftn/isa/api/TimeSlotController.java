@@ -26,11 +26,13 @@ public class TimeSlotController {
 
     @GetMapping("/company/{companyId}")
     public ResponseEntity getList(@PathVariable int companyId){
-        var products = timeSlotRepository.findByCompanyId(companyId);
+        var timeSlots = timeSlotRepository.findByCompanyId(companyId);
 
         Collection<TimeSlotListItemDto> list = new ArrayList<>();
-        for (var x : products) {
-            list.add(TimeSlotListItemDto.convert(x));
+        for (var x : timeSlots) {
+            if (x.getReservation() == null) {
+                list.add(TimeSlotListItemDto.convert(x));
+            }
         }
 
         return ResponseEntity.ok(list);

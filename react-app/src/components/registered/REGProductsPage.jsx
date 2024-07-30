@@ -14,7 +14,6 @@ const REGProductsPage = () => {
 
     useEffect(() => {
         populateProducts();
-        populateTimeSlots(); // TODO: TEMP
     }, []);
 
     const populateProducts = async () => {
@@ -111,6 +110,7 @@ const REGProductsPage = () => {
 
         <button type="button" class="floating-button" data-bs-toggle="modal" data-bs-target="#exampleModal"
             hidden={!stateProducts.find(x => x.selected && x.selected > 0)}
+            onClick={() => populateTimeSlots()}
         >
             Proceed to reservation
         </button>

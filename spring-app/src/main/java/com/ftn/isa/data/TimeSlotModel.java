@@ -23,6 +23,6 @@ public class TimeSlotModel {
     )
     CompanyModel company;
 
-    @OneToOne(mappedBy = "timeSlot", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "timeSlot", fetch = FetchType.EAGER)
     private ReservationModel reservation;
 }
