@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                     .requestMatchers("/admin/**").hasRole("USER")
                     .requestMatchers("/identity/**").permitAll()
                     .requestMatchers("/reservation/**").hasRole("USER")
+                    .requestMatchers("/users/**").hasRole("USER")
                     .anyRequest().permitAll()
                     .and().formLogin()
                     .and().httpBasic();

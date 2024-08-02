@@ -1,6 +1,7 @@
 package com.ftn.isa.api;
 
 import com.ftn.isa.data.*;
+import com.ftn.isa.payload.request.complaint.AdminComplaintDto;
 import com.ftn.isa.payload.request.reservation.ActiveReservationDto;
 import com.ftn.isa.payload.request.reservation.ReservationDto;
 import com.ftn.isa.payload.response.reservation.CreatedReservationDto;
@@ -24,14 +25,16 @@ public class ReservationsController {
     private final ReservationProductRepository reservationProductRepository;
     private final TimeSlotTrackerRepository timeSlotTrackerRepository;
     private final AppUserRepository appUserRepository;
+    private final ComplaintRepository complaintRepository;
 
-    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository) {
+    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository, ComplaintRepository complaintRepository) {
         this.reservationRepository = reservationRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.productRepository = productRepository;
         this.reservationProductRepository = reservationProductRepository;
         this.timeSlotTrackerRepository = timeSlotTrackerRepository;
         this.appUserRepository = appUserRepository;
+        this.complaintRepository = complaintRepository;
     }
 
     @PostMapping("")
@@ -99,5 +102,37 @@ public class ReservationsController {
         ReservationModel res = reservationRepository.findById(id).get();
         reservationRepository.delete(res);
         return ResponseEntity.ok().body("Successful delete");
+    }
+
+    @GetMapping("complaints/company-admin/{companyAdminId}/allowed")
+    public ResponseEntity<String> checkIsAllowedToWriteComplaint(@PathVariable int companyAdminId){
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        var cpyAdmin = appUserRepository.findById(companyAdminId);
+
+        boolean exists = reservationRepository.existsByUserAndCompanyAdmin(user, cpyAdmin.get());
+        if (!exists) return ResponseEntity.badRequest().body("Exists");
+
+        return ResponseEntity.ok("Exists");
+    }
+
+    @PostMapping("complaints/company-admin")
+    public ResponseEntity<?> saveAdminComplaint(@RequestBody AdminComplaintDto requestBody){
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        var cpyAdmin = appUserRepository.findById(requestBody.adminId());
+
+        ComplaintModel complaintModel = new ComplaintModel();
+        complaintModel.setAdmin(cpyAdmin.get());
+        complaintModel.setContent(requestBody.content());
+        complaintModel.setSubmitter(user);
+
+        complaintRepository.save(complaintModel);
+
+        return ResponseEntity.ok().body(complaintModel);
     }
 }

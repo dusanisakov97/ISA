@@ -25,4 +25,8 @@ public class TimeSlotModel {
 
     @OneToOne(mappedBy = "timeSlot", fetch = FetchType.EAGER)
     private ReservationModel reservation;
+
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "id")
+    private AppUser cpyAdmin;
 }

@@ -24,6 +24,7 @@ const getProductsByCompany = async (companyId) => {
     }
 };
 
+
 export {
     getCompanies, getProductsByCompany
 };
