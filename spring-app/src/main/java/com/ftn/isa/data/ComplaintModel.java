@@ -25,6 +25,10 @@ public class ComplaintModel {
     @JoinColumn(referencedColumnName = "id")
     private AppUser admin;
 
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "id")
+    private CompanyModel company;
+
     private String response;
     private String content;
 }

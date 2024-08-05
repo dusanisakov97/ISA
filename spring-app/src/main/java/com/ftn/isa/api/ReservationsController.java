@@ -2,8 +2,10 @@ package com.ftn.isa.api;
 
 import com.ftn.isa.data.*;
 import com.ftn.isa.payload.request.complaint.AdminComplaintDto;
+import com.ftn.isa.payload.request.complaint.CompanyComplaintDto;
 import com.ftn.isa.payload.request.reservation.ActiveReservationDto;
 import com.ftn.isa.payload.request.reservation.ReservationDto;
+import com.ftn.isa.payload.response.complaint.ComplaintHistoryDto;
 import com.ftn.isa.payload.response.reservation.CreatedReservationDto;
 import com.ftn.isa.repository.*;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +28,9 @@ public class ReservationsController {
     private final TimeSlotTrackerRepository timeSlotTrackerRepository;
     private final AppUserRepository appUserRepository;
     private final ComplaintRepository complaintRepository;
+    private final CompanyRepository companyRepository;
 
-    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository, ComplaintRepository complaintRepository) {
+    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository, ComplaintRepository complaintRepository, CompanyRepository companyRepository) {
         this.reservationRepository = reservationRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.productRepository = productRepository;
@@ -35,6 +38,7 @@ public class ReservationsController {
         this.timeSlotTrackerRepository = timeSlotTrackerRepository;
         this.appUserRepository = appUserRepository;
         this.complaintRepository = complaintRepository;
+        this.companyRepository = companyRepository;
     }
 
     @PostMapping("")
@@ -134,5 +138,62 @@ public class ReservationsController {
         complaintRepository.save(complaintModel);
 
         return ResponseEntity.ok().body(complaintModel);
+    }
+
+    @GetMapping("complaints/company/{companyId}/allowed")
+    public ResponseEntity<String> checkIsAllowedToWriteComplaintForCompany(@PathVariable int companyId){
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        var cpy = companyRepository.findById(companyId);
+
+        boolean exists = reservationRepository.existsByUserAndCompany(user, cpy.get());
+        if (!exists) return ResponseEntity.badRequest().body("Exists");
+
+        return ResponseEntity.ok("Exists");
+    }
+
+    @PostMapping("complaints/company")
+    public ResponseEntity<?> saveCompanyComplaint(@RequestBody CompanyComplaintDto requestBody){
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        var cpy = companyRepository.findById(requestBody.companyId());
+
+        ComplaintModel complaintModel = new ComplaintModel();
+        complaintModel.setCompany(cpy.get());
+        complaintModel.setContent(requestBody.content());
+        complaintModel.setSubmitter(user);
+        complaintModel.setSubmittedAt(LocalDateTime.now());
+
+        complaintRepository.save(complaintModel);
+
+        return ResponseEntity.ok().body(complaintModel);
+    }
+
+    @GetMapping("complaints/history")
+    public ResponseEntity<List<ComplaintHistoryDto>> getComplaintsHistory(){
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        List<ComplaintModel> list = complaintRepository.findBySubmitter(user);
+        List<ComplaintHistoryDto> response = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            String company = "";
+            if (list.get(i).getCompany() != null) {
+                company = list.get(i).getCompany().getName();
+            }
+            String admin = "";
+            if (list.get(i).getAdmin() != null) {
+                company = list.get(i).getAdmin().getName()  + " " + list.get(i).getAdmin().getName();
+            }
+            ComplaintHistoryDto dto = new ComplaintHistoryDto(list.get(i).getSubmittedAt(), company, admin, list.get(i).getContent(), list.get(i).getResponse());
+            response.add(dto);
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

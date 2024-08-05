@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import CompanyComplaints from "./complaints/CompanyComplaints";
 import AdminComplaints from "./complaints/AdminComplaints";
+import ComplaintHistory from "./complaints/ComplaintHistory";
 
 
 const REGComplaintsPage = () => {
@@ -21,6 +22,10 @@ const REGComplaintsPage = () => {
 
         {stateOption === 2 && 
             <AdminComplaints />
+        }
+
+        {stateOption === 3 && 
+            <ComplaintHistory />
         }
         </>
     );
