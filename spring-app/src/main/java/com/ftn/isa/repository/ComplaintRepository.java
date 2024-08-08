@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ComplaintRepository extends JpaRepository<ComplaintModel, Integer> {
     List<ComplaintModel> findBySubmitter(AppUser submitter);
+    List<ComplaintModel> findByResponseIsNullOrResponse(String response);
 }

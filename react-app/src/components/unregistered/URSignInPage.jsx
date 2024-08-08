@@ -15,6 +15,7 @@ const URSignInPage = () => {
         if (returnValue[0]) {
             localStorage.setItem("EMAIL", email);
             localStorage.setItem("PASSWORD", password);
+            localStorage.setItem("ROLE", returnValue[0].role);
             window.location.href = "/";
         } else {
             alert(returnValue[1])

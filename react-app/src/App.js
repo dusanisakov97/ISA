@@ -13,15 +13,16 @@ import REGActiveReservations from './components/registered/REGActiveReservations
 import REGComplaintsPage from './components/registered/REGComplaintsPage';
 import CompanyComplaintForm from './components/registered/complaints/CompanyComplaintForm';
 import AdminComplaintForm from './components/registered/complaints/AdminComplaintForm';
+import ADComplaintsPage from './components/admin/ADComplaintsPage';
 
 function App() {
   const unregisteredUserUrlPrefix = '/unregistered'
   const registeredUserUrlPrefix = '/registered'
 
-  const [email, setEmail] = useState('')
+  const [role, setRole] = useState('')
 
   useEffect(() => {
-    setEmail(localStorage.getItem('EMAIL'));
+    setRole(localStorage.getItem('ROLE'));
   }, []);
 
   const logout = () => {
@@ -37,7 +38,7 @@ function App() {
           <span className="navbar-toggler-icon"></span>
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
-            {!email && 
+            {!role && 
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
@@ -54,7 +55,7 @@ function App() {
             </ul>
             }
 
-            {email && 
+            {role && role === 'ROLE_USER' &&
             <ul className="navbar-nav">
               <li className="nav-item">
                 <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
@@ -73,12 +74,22 @@ function App() {
               </li>
             </ul>
             }
+            {role && role === 'ROLE_SYS_ADMIN' &&
+            <ul className="navbar-nav">
+              <li className="nav-item">
+                <Link className="nav-link active" aria-current="page" to={"/"}>Home</Link>
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to={"/registered/complaints/admin"}>Complaints</Link>
+              </li>
+            </ul>
+            }
         </div>
       </div>
     </nav>
     <Routes>
       <Route path="/" element={<LandingPage />} />
-      {!email &&
+      {!role &&
       <>
         <Route path={unregisteredUserUrlPrefix + '/companies'} element={<URCompaniesPage />} />
         <Route path={unregisteredUserUrlPrefix + '/sign-in'} element={<URSignInPage />} />
@@ -88,7 +99,7 @@ function App() {
       </>
       }
 
-      {email &&
+      {role && role === 'ROLE_USER' &&
       <>
         <Route path={registeredUserUrlPrefix + '/companies'} element={<REGCompaniesPage />} />
         <Route path={registeredUserUrlPrefix + '/active-reservations'} element={<REGActiveReservations />} />
@@ -97,6 +108,12 @@ function App() {
         <Route path={registeredUserUrlPrefix + '/complaints/admin/:id'} element={<AdminComplaintForm />} />
         <Route path={registeredUserUrlPrefix + '/products/company/:companyId'} element={<REGProductsPage />} />
         <Route path="*" element={<UrlNotFoundPage />} />
+      </>
+      }
+
+      {role && role === 'ROLE_SYS_ADMIN' &&
+      <>
+        <Route path={registeredUserUrlPrefix + '/complaints/admin'} element={<ADComplaintsPage />} />
       </>
       }
     </Routes>

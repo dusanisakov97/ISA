@@ -23,7 +23,7 @@ const getActiveReservationsAPI = async () => {
         const credentials = btoa(`${localStorage.getItem('EMAIL')}:${localStorage.getItem('PASSWORD')}`);
         const response = await axios.get(backendUrl + "/active", {
             headers: {
-                Authorization: credentials
+                Authorization: 'Basic ' +  credentials
             }
         }); 
         console.log(response.data)
@@ -131,6 +131,38 @@ const getComplaintHistoryAPI = async () => {
     }
 };
 
+const getAdminComplaintsAPI = async () => {
+    try {
+        const credentials = btoa(`${localStorage.getItem('EMAIL')}:${localStorage.getItem('PASSWORD')}`);
+        const response = await axios.get(backendUrl + "/complaints/admin", {
+            headers: {
+                Authorization: 'Basic ' +  credentials
+            }
+        }); 
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return null;             
+    }
+};
+
+const saveComplaintResponseAPI = async (requestBody) => {
+    try {
+        const credentials = btoa(`${localStorage.getItem('EMAIL')}:${localStorage.getItem('PASSWORD')}`);
+        const response = await axios.post(backendUrl + `/complaints/admin/response`, requestBody, {
+            headers: {
+                Authorization: 'Basic ' + credentials
+            }
+        }); 
+        console.log(response.data)
+        return true;
+    } catch (error) {
+        console.log(error);
+        return false;             
+    }
+};
+
 export {
-    makeOrderAPI, getActiveReservationsAPI, deleteReservationAPI, checkIsAllowedToWriteComplaint, saveAdminComplaintAPI, checkIsAllowedToWriteComplaintForCompany, saveCompanyComplaintAPI, getComplaintHistoryAPI
+    makeOrderAPI, getActiveReservationsAPI, deleteReservationAPI, checkIsAllowedToWriteComplaint, saveAdminComplaintAPI, checkIsAllowedToWriteComplaintForCompany, saveCompanyComplaintAPI, getComplaintHistoryAPI, getAdminComplaintsAPI, saveComplaintResponseAPI
 };

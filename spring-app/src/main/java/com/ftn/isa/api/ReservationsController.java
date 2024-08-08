@@ -3,6 +3,7 @@ package com.ftn.isa.api;
 import com.ftn.isa.data.*;
 import com.ftn.isa.payload.request.complaint.AdminComplaintDto;
 import com.ftn.isa.payload.request.complaint.CompanyComplaintDto;
+import com.ftn.isa.payload.request.complaint.ComplaintResponseDto;
 import com.ftn.isa.payload.request.reservation.ActiveReservationDto;
 import com.ftn.isa.payload.request.reservation.ReservationDto;
 import com.ftn.isa.payload.response.complaint.ComplaintHistoryDto;
@@ -190,10 +191,39 @@ public class ReservationsController {
             if (list.get(i).getAdmin() != null) {
                 company = list.get(i).getAdmin().getName()  + " " + list.get(i).getAdmin().getName();
             }
-            ComplaintHistoryDto dto = new ComplaintHistoryDto(list.get(i).getSubmittedAt(), company, admin, list.get(i).getContent(), list.get(i).getResponse());
+            ComplaintHistoryDto dto = new ComplaintHistoryDto(list.get(i).getId(),list.get(i).getSubmittedAt(), company, admin, list.get(i).getContent(), list.get(i).getResponse());
             response.add(dto);
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("complaints/admin")
+    public ResponseEntity<List<ComplaintHistoryDto>> getComplaintsAdmin(){
+        List<ComplaintModel> list = complaintRepository.findByResponseIsNullOrResponse("");
+        List<ComplaintHistoryDto> response = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            String company = "";
+            if (list.get(i).getCompany() != null) {
+                company = list.get(i).getCompany().getName();
+            }
+            String admin = "";
+            if (list.get(i).getAdmin() != null) {
+                company = list.get(i).getAdmin().getName()  + " " + list.get(i).getAdmin().getName();
+            }
+            ComplaintHistoryDto dto = new ComplaintHistoryDto(list.get(i).getId(),list.get(i).getSubmittedAt(), company, admin, list.get(i).getContent(), list.get(i).getResponse());
+            response.add(dto);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("complaints/admin/response")
+    public ResponseEntity<?> saveComplaintResponse(@RequestBody ComplaintResponseDto requestBody){
+        var complaint = complaintRepository.findById(requestBody.complaintId());
+        complaint.get().setResponse(requestBody.response());
+        complaintRepository.save(complaint.get());
+
+        return ResponseEntity.ok().body(complaint);
     }
 }

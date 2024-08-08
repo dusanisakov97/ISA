@@ -4,6 +4,7 @@ import com.ftn.isa.data.AppUser;
 import com.ftn.isa.payload.request.identity.RegisterDto;
 import com.ftn.isa.payload.request.identity.SignInDto;
 import com.ftn.isa.payload.response.identity.RegisteredDto;
+import com.ftn.isa.payload.response.identity.SignedInDto;
 import com.ftn.isa.repository.AppUserRepository;
 import com.ftn.isa.tools.Const;
 import org.springframework.http.ResponseEntity;
@@ -70,7 +71,9 @@ public class IdentityController {
                         requestBody.password()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return ResponseEntity.ok().body("Success");
+        SignedInDto dto = new SignedInDto(userOpt.get().getRole());
+
+        return ResponseEntity.ok().body(dto);
     }
 
     private String validate(RegisterDto model) {
