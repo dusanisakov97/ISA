@@ -82,6 +82,9 @@ function App() {
               <li className="nav-item">
                 <Link className="nav-link" to={"/registered/complaints/admin"}>Complaints</Link>
               </li>
+              <li className="nav-item">
+                <button className="nav-link" onClick={() => logout()}>Logout</button>
+              </li>
             </ul>
             }
         </div>
