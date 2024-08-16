@@ -1,6 +1,7 @@
 package com.ftn.isa.api;
 
 import com.ftn.isa.data.*;
+import com.ftn.isa.email.EmailService;
 import com.ftn.isa.payload.request.complaint.AdminComplaintDto;
 import com.ftn.isa.payload.request.complaint.CompanyComplaintDto;
 import com.ftn.isa.payload.request.complaint.ComplaintResponseDto;
@@ -30,8 +31,10 @@ public class ReservationsController {
     private final AppUserRepository appUserRepository;
     private final ComplaintRepository complaintRepository;
     private final CompanyRepository companyRepository;
+    private final EmailService emailService;
 
-    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository, ComplaintRepository complaintRepository, CompanyRepository companyRepository) {
+
+    public ReservationsController(ReservationRepository reservationRepository, TimeSlotRepository timeSlotRepository, ProductRepository productRepository, ReservationProductRepository reservationProductRepository, TimeSlotTrackerRepository timeSlotTrackerRepository, AppUserRepository appUserRepository, ComplaintRepository complaintRepository, CompanyRepository companyRepository, EmailService emailService) {
         this.reservationRepository = reservationRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.productRepository = productRepository;
@@ -40,6 +43,7 @@ public class ReservationsController {
         this.appUserRepository = appUserRepository;
         this.complaintRepository = complaintRepository;
         this.companyRepository = companyRepository;
+        this.emailService = emailService;
     }
 
     @PostMapping("")
@@ -223,6 +227,10 @@ public class ReservationsController {
         var complaint = complaintRepository.findById(requestBody.complaintId());
         complaint.get().setResponse(requestBody.response());
         complaintRepository.save(complaint.get());
+
+        String text = "Hi, \n System admin just received on your complaint. His response is:\n " + complaint.get().getResponse() + "\n If you want more details, please go to portal and see complaint history";
+
+        emailService.sendSimpleMessage(complaint.get().getSubmitter().getEmail(), "Response on complaint", text);
 
         return ResponseEntity.ok().body(complaint);
     }
