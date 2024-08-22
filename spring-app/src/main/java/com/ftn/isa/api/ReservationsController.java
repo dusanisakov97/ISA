@@ -9,6 +9,7 @@ import com.ftn.isa.payload.request.reservation.ActiveReservationDto;
 import com.ftn.isa.payload.request.reservation.ReservationDto;
 import com.ftn.isa.payload.response.complaint.ComplaintHistoryDto;
 import com.ftn.isa.payload.response.reservation.CreatedReservationDto;
+import com.ftn.isa.qr.QrService;
 import com.ftn.isa.repository.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
@@ -47,7 +48,7 @@ public class ReservationsController {
     }
 
     @PostMapping("")
-    public ResponseEntity makeReservation(@RequestBody ReservationDto model){
+    public ResponseEntity makeReservation(@RequestBody ReservationDto model) throws Exception {
         var timeslotOpt=  timeSlotRepository.findById(model.timeSlot().id());
         if (timeslotOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("Timeslot not found");
@@ -88,6 +89,10 @@ public class ReservationsController {
         timeSlotTrackerModel.setDateTime(LocalDateTime.now());
         timeSlotTrackerModel.setAppUser(user);
         timeSlotTrackerRepository.save(timeSlotTrackerModel);
+
+        String text = "Reservation text";
+
+        emailService.sendEmailWithQRCode(user.getEmail(), "Reservation confirmation", text, QrService.generateQRCodeImage(text, 400, 400));
 
         CreatedReservationDto dto = new CreatedReservationDto(reservationModel.getId(), reservationModel.getReservationDateTime());
 

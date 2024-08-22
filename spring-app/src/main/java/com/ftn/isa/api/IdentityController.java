@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/identity")
@@ -80,7 +81,7 @@ public class IdentityController {
             throw new RuntimeException(e);
         }
 
-        byte[] encodedhash = digest.digest(LocalDate.now().toString().getBytes(StandardCharsets.UTF_8));
+        byte[] encodedhash = digest.digest(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
         var hash =  Base64.getUrlEncoder().withoutPadding().encodeToString(encodedhash);
         model.setHash(hash);
 
@@ -88,7 +89,7 @@ public class IdentityController {
 
         String link = "http://localhost:8080/identity/verification?hash=" + hash;
 
-        String emailText = "Thank you for joining our platform! In order to proceed, please click on verification link <a href='" + link + "'>Verification link</a>. ";
+        String emailText = "Thank you for joining our platform! In order to proceed, please click on verification link " + link;
         emailService.sendSimpleMessage(user.getEmail(), "Registration verification", emailText);
 
         return ResponseEntity.ok(r);
