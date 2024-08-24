@@ -90,9 +90,12 @@ public class ReservationsController {
         timeSlotTrackerModel.setAppUser(user);
         timeSlotTrackerRepository.save(timeSlotTrackerModel);
 
-        String text = "Reservation text";
+        String text = "Your reservation has been placed. You are supposed to pick it up on address: " + timeslotOpt.get().getCompany().getAddress() + " at "
+                + timeslotOpt.get().getDateTime().getDayOfMonth() + "." + timeslotOpt.get().getDateTime().getMonth() + "." + timeslotOpt.get().getDateTime().getYear()
+                + " - " + timeslotOpt.get().getDateTime().getHour() + ":" + timeslotOpt.get().getDateTime().getMinute();
 
-        emailService.sendEmailWithQRCode(user.getEmail(), "Reservation confirmation", text, QrService.generateQRCodeImage(text, 400, 400));
+        String qrText = "http://localhost:3000/reservation/" + reservationModel.getId();
+        emailService.sendEmailWithQRCode(user.getEmail(), "Reservation confirmation", text, QrService.generateQRCodeImage(qrText, 400, 400));
 
         CreatedReservationDto dto = new CreatedReservationDto(reservationModel.getId(), reservationModel.getReservationDateTime());
 
