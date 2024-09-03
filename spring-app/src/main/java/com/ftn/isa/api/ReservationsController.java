@@ -11,6 +11,7 @@ import com.ftn.isa.payload.response.complaint.ComplaintHistoryDto;
 import com.ftn.isa.payload.response.reservation.CreatedReservationDto;
 import com.ftn.isa.qr.QrService;
 import com.ftn.isa.repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,6 +48,7 @@ public class ReservationsController {
         this.emailService = emailService;
     }
 
+    @Transactional
     @PostMapping("")
     public ResponseEntity makeReservation(@RequestBody ReservationDto model) throws Exception {
         var timeslotOpt=  timeSlotRepository.findById(model.timeSlot().id());
@@ -62,9 +64,20 @@ public class ReservationsController {
             return ResponseEntity.badRequest().body("You already reserved this term and you are not allowed to do it anymore");
         }
 
+        var alreadyBooked = reservationRepository.existsByTimeSlot(timeslotOpt.get());
+        if (alreadyBooked) {
+            return ResponseEntity.badRequest().body("TIme slot is already booked");
+        }
+
         List<ProductModel> products = new ArrayList<>();
         for (int i = 0; i < model.items().size(); i++) {
-            ProductModel product = productRepository.findById(model.items().get(0).productId()).get();
+            ProductModel product = productRepository.findById(model.items().get(i).productId()).get();
+
+            if (product.getLager() < model.items().get(i).selected()) {
+                throw new Exception(model.items().get(i).selected() + " items of product " + product.getName() + " are not available");
+            }
+            product.setLager(product.getLager() - model.items().get(i).selected());
+            productRepository.save(product);
             products.add(product);
         }
 
@@ -77,8 +90,8 @@ public class ReservationsController {
 
         for (int i = 0; i < model.items().size(); i++) {
             ReservationProductModel x = new ReservationProductModel();
-            x.setSelectedQuantity(model.items().get(0).selected());
-            x.setTotalPrice(products.get(i).getPrice() * model.items().get(0).selected());
+            x.setSelectedQuantity(model.items().get(i).selected());
+            x.setTotalPrice(products.get(i).getPrice() * model.items().get(i).selected());
             x.setProduct(products.get(i));
             x.setReservation(reservationModel);
             reservationProductRepository.save(x);
@@ -104,7 +117,12 @@ public class ReservationsController {
 
     @GetMapping("active")
     public ResponseEntity<List<ActiveReservationDto>> getActiveReservations(){
-        List<ReservationModel> reservations = reservationRepository.findAll();
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        List<ReservationModel> reservations = reservationRepository.findByUser(user);
         List<ActiveReservationDto> activeReservations = new ArrayList<>();
         for (int i = 0; i < reservations.size(); i++) {
             ActiveReservationDto dto = new ActiveReservationDto(reservations.get(i).getId(),reservations.get(i).getTimeSlot().getCompany().getName(), reservations.get(i).getTimeSlot().getCompany().getAddress(), reservations.get(i).getTimeSlot().getDateTime().toString());
@@ -117,7 +135,23 @@ public class ReservationsController {
     @DeleteMapping("{id}")
     public ResponseEntity deleteReservation(@PathVariable int id){
         ReservationModel res = reservationRepository.findById(id).get();
+        if (res.getTimeSlot().getDateTime().isBefore(LocalDateTime.now())) {
+            return ResponseEntity.badRequest().body("Reservation in the past can't be deleted");
+        }
+
         reservationRepository.delete(res);
+
+        SecurityContext context = SecurityContextHolder.getContext();
+        var authUser = (UserImpl) context.getAuthentication().getPrincipal();
+        var user = appUserRepository.findById(Math.toIntExact(authUser.getId())).get();
+
+        if (res.getTimeSlot().getDateTime().isBefore(LocalDateTime.now().plusDays(1))) {
+            user.setPenals(user.getPenals() + 2);
+        } else {
+            user.setPenals(user.getPenals() + 1);
+        }
+        appUserRepository.save(user);
+
         return ResponseEntity.ok().body("Successful delete");
     }
 
@@ -233,6 +267,10 @@ public class ReservationsController {
     @PostMapping("complaints/admin/response")
     public ResponseEntity<?> saveComplaintResponse(@RequestBody ComplaintResponseDto requestBody){
         var complaint = complaintRepository.findById(requestBody.complaintId());
+        if (complaint.get().getResponse() != null && !complaint.get().getResponse().isEmpty()) {
+            return ResponseEntity.badRequest().body("This complaint is already answered");
+        }
+
         complaint.get().setResponse(requestBody.response());
         complaintRepository.save(complaint.get());
 

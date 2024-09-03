@@ -120,7 +120,7 @@ public class IdentityController {
         if (userOpt.isEmpty())  return ResponseEntity.badRequest().body("Email or password is wrong");
 
         Optional<VerificationModel> verOpt =  verificationRepository.findByUser(userOpt.get());
-        if (verOpt.isEmpty()) {
+        if (verOpt.isEmpty() || !verOpt.get().isConfirmed()) {
             return ResponseEntity.badRequest().body("Email or password is wrong");
         }
 

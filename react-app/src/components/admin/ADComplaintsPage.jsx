@@ -18,12 +18,12 @@ const ADComplaintsPage = () => {
     };
 
     const saveResponse = async (id) => {
-        const success = await saveComplaintResponseAPI({complaintId: id, response: stateResponse})
-        if (success) {
+        const error = await saveComplaintResponseAPI({complaintId: id, response: stateResponse})
+        if (!error) {
             alert('Response saved')
             populateComplaints();
         } else {
-            alert('Failed to save')   
+            alert(error)   
         }
     }
 

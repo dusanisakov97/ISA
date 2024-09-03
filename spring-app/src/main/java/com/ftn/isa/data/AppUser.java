@@ -20,4 +20,5 @@ public class AppUser {
     private String phone;
     private String work;
     private String role;
+    private int penals;
 }

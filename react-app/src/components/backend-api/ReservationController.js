@@ -43,10 +43,10 @@ const deleteReservationAPI = async (id) => {
             }
         }); 
         console.log(response.data)
-        return response.data;
+        return null;
     } catch (error) {
         console.log(error);
-        return null;             
+        return error.response.data;             
     }
 };
 
@@ -156,10 +156,10 @@ const saveComplaintResponseAPI = async (requestBody) => {
             }
         }); 
         console.log(response.data)
-        return true;
+        return null;
     } catch (error) {
         console.log(error);
-        return false;             
+        return error.response.data;             
     }
 };
 

@@ -15,8 +15,12 @@ const REGActiveReservations = () => {
     };
 
     const deleteReservation = async (reservationId) => {
-        await deleteReservationAPI(reservationId);
-        await populateReservations();
+        const error = await deleteReservationAPI(reservationId);
+        if (error) {
+            alert(error);
+        } else {
+            await populateReservations();
+        }
     }
 
     return(

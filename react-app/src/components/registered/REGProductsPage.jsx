@@ -70,7 +70,10 @@ const REGProductsPage = () => {
 
         const error = await makeOrderAPI(requestBody);
         if (error !== null) {
-            alert(error)
+            if (typeof error === 'string')
+                alert(error)
+            else
+                alert('Reservation failed. Please try again later')
         } else {
             alert('Reservation saved')
             window.location.href = "/";
