@@ -2,7 +2,7 @@
 
 # Docker Desktop: https://docs.docker.com/desktop/install/windows-install/
 
-Then navigate to ISA folder in Command Prompt and run a following command: docker-compose up -d
+Then navigate to ISA folder in Command Prompt and run a following command: `docker-compose up -d`
 
 adminer port: 8085:8080 and
 mail port: 5000:80
