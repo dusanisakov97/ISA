@@ -181,6 +181,7 @@ public class ReservationsController {
         complaintModel.setAdmin(cpyAdmin.get());
         complaintModel.setContent(requestBody.content());
         complaintModel.setSubmitter(user);
+        complaintModel.setSubmittedAt(LocalDateTime.now());
 
         complaintRepository.save(complaintModel);
 
