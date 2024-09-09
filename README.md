@@ -19,4 +19,8 @@ Open Terminal in VSCode and run following commands:
 `npm install` and
 `npm start`
 
+It should open the app in http://localhost:3000/
+
 More about React App in README.md file of that child folder.
+
+Test data can be found in testnipodaci.sql file in this repo, password for test users is 123
