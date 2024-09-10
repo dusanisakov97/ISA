@@ -23,4 +23,6 @@ It should open the app in http://localhost:3000/
 
 More about React App in README.md file of that child folder.
 
+API Design: http://localhost:8080/swagger-ui/index.html
+
 Test data can be found in testnipodaci.sql file in this repo, password for test users is 123
